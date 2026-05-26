@@ -1317,8 +1317,9 @@ moves_loop:  // When in check, search starts here
                 if (newDepth > d)
                     value = -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha, newDepth, !cutNode);
 
-                // Post LMR continuation history updates
-                update_continuation_histories(ss, movedPiece, move.to_sq(), 1415);
+                // Post LMR continuation history updates, scaled by LMR result quality
+                update_continuation_histories(ss, movedPiece, move.to_sq(),
+                                              1415 + 654 * doDeeperSearch - 233 * doShallowerSearch);
             }
         }
 
