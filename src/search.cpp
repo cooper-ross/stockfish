@@ -1304,6 +1304,11 @@ moves_loop:  // When in check, search starts here
 
         u64 nodeCount = rootNode ? u64(nodes) : 0;
 
+        // Pawn history of the pre-move position, used below for the statScore
+        // of quiet moves. It has to be read before making the move because
+        // pawn moves change the pawn structure key.
+        int pawnHist = capture ? 0 : sharedHistory.pawn_entry(pos)[movedPiece][move.to_sq()];
+
         // Step 17. Make the move
         do_move(pos, move, st, givesCheck, ss);
 
@@ -1345,7 +1350,7 @@ moves_loop:  // When in check, search starts here
         else
             ss->statScore =
               (2252 * mainHistory[us][move.raw()] + 1126 * (*contHist[0])[movedPiece][move.to_sq()]
-               + 1093 * (*contHist[1])[movedPiece][move.to_sq()])
+               + 1093 * (*contHist[1])[movedPiece][move.to_sq()] + 1024 * pawnHist)
               / 1024;
 
         // Decrease/increase reduction for moves with a good/bad history
