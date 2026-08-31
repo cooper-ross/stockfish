@@ -1024,6 +1024,18 @@ Value Search::Worker::search(
         // Do not return unproven mate or TB scores
         if (nullValue >= beta && !is_win(nullValue))
         {
+            // The null move search proved that the position is worth at least
+            // beta even after passing a move, so the static evaluation was too
+            // pessimistic: adjust correction history as a normal fail high
+            // of this depth would have done.
+            if (nullValue > ss->staticEval)
+            {
+                const int bonus = std::clamp(int(nullValue - ss->staticEval) * depth * 12 / 128,
+                                             -CORRECTION_HISTORY_LIMIT / 4,
+                                             CORRECTION_HISTORY_LIMIT / 4);
+                update_correction_history(pos, ss, *this, bonus);
+            }
+
             if (nmpMinPly || depth < 16)
                 return nullValue;
 
