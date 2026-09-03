@@ -1353,6 +1353,9 @@ moves_loop:  // When in check, search starts here
 
         if (!capture && !is_decisive(alpha))
             r += 3 * std::clamp(alpha - eval, -64, 96);
+        // Captures are the tactical way to catch a window above static/TT eval
+        else if (capture && !is_decisive(alpha) && alpha > eval)
+            r -= 3 * std::min(int(alpha - eval), 96);
 
         // Scale up reductions for expected ALL nodes
         if (allNode)
